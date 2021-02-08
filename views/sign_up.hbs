@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Регистрация</title>
+</head>
+
+<body>
+
+  <form action="addNewAccount" method="POST" enctype="multipart/form-data">
+    <p><b>Имя</b><br>
+      <input name="first_name" type="text" maxlength="20" required>
+    </p>
+    <p><b>Фамилия</b><br>
+      <input name="second_name" type="text" maxlength="20" required>
+    </p>
+    <input type="date" name="birth_date" value="2018-07-22" min="1970-01-01" max="2010-01-1">
+    <p><b>Email</b><br>
+      <input name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" maxlength="50" required>
+    </p>
+    <p><b>Пароль</b><br>
+      <input name="password" type="password" maxlength="20" required>
+    </p>
+    <input name="filedata" type="file">
+    {{#if isEmailExists}}
+    <p>Этот адрес эл. почты уже используется!</p>
+    {{/if}}
+    <p>
+      <input type="submit" value="Зарегистрироваться">
+    </p>
+  </form>
+
+</body>
+
+</html>

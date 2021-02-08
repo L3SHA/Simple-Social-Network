@@ -1,0 +1,56 @@
+#header{ 
+background-color: #ccc;
+}
+#leftSidebar{
+float: left;
+width: 170px;
+}
+#rightSidebar{
+background-color: #bbb;
+float: right;
+width: 170px;
+}
+#main{
+background-color: #eee;
+height: 300px;
+margin-left: 190px;
+margin-right: 190px;
+}
+#footer{ 
+background-color: #ccc;
+}
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 170px;
+  background-color: #f1f1f1;
+  position: fixed;
+  
+  overflow: auto;
+}
+
+/* Сайдбар ссылки */
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+
+/* Активная/текущая ссылка */
+.sidebar a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Ссылки при наведении мыши */
+.sidebar a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+div{
+    margin: 10px;
+    font-size: 20px;
+   
+}

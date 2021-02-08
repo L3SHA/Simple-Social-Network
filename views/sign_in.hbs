@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Авторизация</title>
+</head>
+
+<body>
+
+  <form name="test" method="POST" action="isUserExists">
+    <p><b>Ваш Email</b><br>
+      <input name="email" type="email" maxlength="50" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+    </p>
+    <p><b>Ваш пароль</b><br>
+      <input name="password" type="password" maxlength="20" required>
+    </p>
+    <p>
+      <input type="submit" value="Войти">
+    </p>
+  </form>
+
+  <form action="/accounts/signup">
+    <input type="submit" value="Регистрация" />
+  </form>
+
+  {{#if isInvalid}}
+  <p>Неверный логин или пароль!</p>
+  {{/if}}
+
+</body>
+
+</html>

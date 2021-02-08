@@ -1,0 +1,18 @@
+{
+  "name": "simple_social_network",
+  "version": "1.0.0",
+  "description": "node.js app on docker",
+  "author": "alexei kashirskiy <lesha18.02.2001@gmail.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.16.1",
+    "hbs": "^4.1.1",
+    "multer": "^1.4.2",
+    "mysql2": "^2.2.5"
+  }
+}
