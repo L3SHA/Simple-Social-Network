@@ -1,36 +1,96 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="utf-8">
-  <title>Регистрация</title>
+	<title>Football Club</title>
+	<link rel="stylesheet" type="text/css" href="/css/style1.css"/>
 </head>
-
 <body>
 
-  <form action="addNewAccount" method="POST" enctype="multipart/form-data">
-    <p><b>Имя</b><br>
-      <input name="first_name" type="text" maxlength="20" required>
-    </p>
-    <p><b>Фамилия</b><br>
-      <input name="second_name" type="text" maxlength="20" required>
-    </p>
-    <input type="date" name="birth_date" value="2018-07-22" min="1970-01-01" max="2010-01-1">
-    <p><b>Email</b><br>
-      <input name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" maxlength="50" required>
-    </p>
-    <p><b>Пароль</b><br>
-      <input name="password" type="password" maxlength="20" required>
-    </p>
-    <input name="filedata" type="file">
-    {{#if isEmailExists}}
-    <p>Этот адрес эл. почты уже используется!</p>
-    {{/if}}
-    <p>
-      <input type="submit" value="Зарегистрироваться">
-    </p>
-  </form>
+	<div class="header">
+		<div class="wrapper">
+			<img src="../images/homaj logo 4.png" width=160 height=70 class="logoletter"/>
+			<form action="isUserExists" method="POST" class="loginuser">
+				<table id="login">
+					<tr style="height: 20px">
+						<td><label for="email">Email</label> </td>
+						<td><label for="logpassword">Password</label></td>
+						<td rowspan=3><input type="submit" value="Log In" id="loginbutton"></td>
+					</tr>
+					
+					<tr>
+						<td><input type="text" name="email" id="email" class="inputtext" required/></td>
+						<td><input type="password" name="password" id="logpassword" class="inputtext" required/></td>
+					</tr>
+
+					<tr style="height: 20px">
+						<td style="color: red">
+						{{#if isIncorrectEmailOrPassword}}
+  							Invalid email or password!
+  						{{/if}}
+						</td>
+						<td><a href="" style="color:white;text-decoration:none;padding-top: 3px;">Forgot password?</a></td>
+					</tr>
+				</table>
+
+			</form>
+		</div>
+	</div>
+
+	<div class="main">
+		<div class="wrapper">
+			<img src="../images/homaj logo.png" class="logopic"/>
+
+		<div class="signup">
+			<h1>Join Football Club</h1>
+
+			<form action="addNewAccount" method="POST">
+				<table id="signuptable">
+					<tr>
+						<td><label for="fname">First Name:</label></td>
+						<td><input type="text" id="fname" class="inputtext2" name="first_name" required/></td>
+					</tr>
+
+					<tr>
+						<td><label for="lname">Last Name:</label></td>
+						<td><input type="text" id="lname" class="inputtext2" name="second_name" required/></td>
+					</tr>
+
+					<tr>
+						<td><label for="emailadd"> Email:</label></td>
+						<td><input type="email" id="emailadd" class="inputtext2" name="email" required/></td>
+						{{#if isEmailExists}}
+						<td><label style="color:#F6092D">Email exists!</label></td>
+						{{/if}}
+					</tr>
+
+					<tr>
+						<td><label for="pwd">Password:</label></td>
+						<td><input type="password" id="pwd" class="inputtext2" name="password" required/></td>
+					</tr>
+
+					<tr id="fm">
+						<td style="text-align:right;"><input type="radio" name="sex" value="Male" id="male" required/>
+						<label for="male">Male</label></td>
+
+						<td style="padding-left:20px;"><input type="radio" name="sex" value="Female" id="female" required/>
+						<label for="female" id="fm1">Female</label></td>
+					</tr>
+
+					<tr>
+						{{> date_picker}}
+					</tr>
+
+					<tr id="joinbut">
+						<td colspan=2 style="padding-left:40px;padding-right: 0px"><input id="joinnowbttn" type="submit" value="Join now"/></td>
+					</tr>
+
+				</table>
+			</form>
+			</div>
+		</div>
+	</div>
+
+	{{> footer}}
 
 </body>
-
 </html>

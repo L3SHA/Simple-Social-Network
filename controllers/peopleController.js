@@ -1,13 +1,8 @@
 const mysql = require("mysql2");
-const database = {
-  host: "localhost",
-  user: "root",
-  database: "social_network",
-  password: "root",
-};
+const dbUtils = require("../utils/dbUtils");
 
 exports.people = function (request, response) {
-  const connection = mysql.createConnection(database);
+  const connection = mysql.createConnection(dbUtils.database);
 
   if (request.cookies.email) {
     const queryAllAccounts =

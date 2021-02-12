@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 const accountsRouter = require("./routes/accountsRouter.js");
+const homeRouter = require("./routes/homeRouter.js");
 const profileRouter = require("./routes/profileRouter.js");
 const postsRouter = require("./routes/postsRouter.js");
 const peopleRouter = require("./routes/peopleRouter.js");
@@ -34,6 +35,7 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use("/home", homeRouter);
 app.use("/accounts", accountsRouter);
 app.use("/profile", profileRouter);
 app.use("/posts", postsRouter);
