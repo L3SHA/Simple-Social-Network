@@ -24,7 +24,7 @@ exports.isUserExists = function (request, response) {
     if (results.length != 0) {
       response.cookie("email", email).redirect("/profile");
     } else {
-      response.render("sign_in.hbs", { isInvalid: true });
+      response.render("sign_up.hbs", { isIncorrectEmailOrPassword: true, isEmailExists: false });
     }
   });
 
@@ -39,8 +39,13 @@ exports.addNewAccount = function (request, response) {
   const second_name = request.body.second_name;
   const email = request.body.email;
   const password = request.body.password;
-  const birth_date = request.body.birth_date;
-  const profile_photo_path = request.file.filename;
+  const profile_photo_path = null;
+  const year = request.body.year;
+  const month = request.body.month;
+  const date = request.body.date;
+  const gender = request.body.sex;
+  const birth_date = new Date(year, month, date);
+  
   const account = {
     email,
     password,
@@ -48,12 +53,13 @@ exports.addNewAccount = function (request, response) {
     second_name,
     birth_date,
     profile_photo_path,
+    gender
   };
 
   connection.query(queryInsertAccount, account, 
     (error, results) => {
     if (error) {
-      response.render("sign_up.hbs", { isEmailExists: true });
+      response.render("sign_up.hbs", { isEmailExists: true, isIncorrectEmailOrPassword: false });
     } else {
       response.cookie("email", email).redirect("/profile");
     }
@@ -64,9 +70,9 @@ exports.addNewAccount = function (request, response) {
 };
 
 exports.getSignInForm = function (request, response) {
-  response.render("sign_in.hbs", { isInvalid: false });
+  response.render("sign_in.hbs", { isIncorrectEmailOrPassword: false });
 };
 
 exports.getSignUpForm = function (request, response) {
-  response.render("sign_up.hbs", { isEmailExists: true });
+  response.render("sign_up.hbs", { isIncorrectEmailOrPassword: false, isEmailExists: false });
 };

@@ -5,6 +5,6 @@ const accountsRouter = express.Router();
 accountsRouter.use("/signin", accountsController.getSignInForm); //enter as some user
 accountsRouter.use("/signup", accountsController.getSignUpForm); //reg new user
 accountsRouter.use("/isUserExists", accountsController.isUserExists);
-accountsRouter.use("/addNewAccount", accountsController.addNewAccount); 
+accountsRouter.post("/addNewAccount", accountsController.addNewAccount); 
 
 module.exports = accountsRouter;

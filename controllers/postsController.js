@@ -1,6 +1,6 @@
 exports.posts = function(request, response){
     if(request.cookies.email){
-        response.render("posts.hbs");
+        response.render("home.hbs");
     }else{
         response.redirect("/accounts/signin");
     }
