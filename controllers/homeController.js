@@ -8,44 +8,45 @@ exports.home = function(request, response){
     if(request.cookies.email){
         const connection = mysql.createConnection(dbUtils.database).promise();
         const queryAccount =
-            "SELECT first_name, second_name, profile_photo_path FROM accounts WHERE email = " + "'" + request.cookies.email + "'";
+            "SELECT first_name, second_name, profile_photo_path " + 
+            "FROM accounts " + 
+            "WHERE email = " + "'" + request.cookies.email + "'";
         const queryPosts = 
-            //"SELECT text, date_time FROM posts WHERE account_email = " + "'" + request.cookies.email + "'" + "ORDER BY date_time DESC";
-            "select * from posts left join accounts on posts.account_email = accounts.email left join files on files.post_id = posts.id where email = " + "'" + request.cookies.email + "'" + "order by posts.date_time desc";
+            "SELECT * " +
+            "FROM posts " +
+            "LEFT JOIN accounts ON posts.account_email = accounts.email " + 
+            "LEFT JOIN files ON files.post_id = posts.id " + 
+            "WHERE email = " + "'" + request.cookies.email + "' " + 
+            "ORDER BY posts.date_time DESC";
         const queryAllAccounts =
-            "SELECT first_name, second_name, profile_photo_path FROM accounts WHERE email <> " +
+            "SELECT first_name, second_name, profile_photo_path " + 
+            "FROM accounts WHERE email <> " +
             "'" +
             request.cookies.email +
             "'";
         let account = {};
         let posts = {};
-       connection.query(queryAccount)
-        .then(result => {
-
-            account = result[0][0];
-            
-            account.profile_photo_path = account.profile_photo_path
+        connection.query(queryAccount)
+            .then(result => {
+                account = result[0][0];
+                account.profile_photo_path = account.profile_photo_path
                     ? pathUtils.USER_LOGO_PATH + account.profile_photo_path
                     : pathUtils.DEFAULT_LOGO_PATH;
-
         }).then(() => {
             connection.query(queryPosts)
                 .then(result => {
                     posts = result[0].map(post =>{
                         let time = new Date(post.date_time);
                         let timeDiff = (Date.now() - time) / (1000 * 60 * 60);
-                        console.log(Math.round(timeDiff));
                         post.time_passed = Math.round(timeDiff) + "hr ago";
                         post.profile_photo_path = post.profile_photo_path
                             ? pathUtils.USER_LOGO_PATH + post.profile_photo_path
                             : pathUtils.DEFAULT_LOGO_PATH;
                         post.path = post.path
-                        ? pathUtils.USER_LOGO_PATH + post.path
-                        : pathUtils.DEFAULT_LOGO_PATH;
+                            ? pathUtils.USER_LOGO_PATH + post.path
+                            : pathUtils.DEFAULT_LOGO_PATH;
                         return post;
                     });
-                    console.log(posts);
-                    
             });
         }).then(() => {
             connection.query(queryAllAccounts)
@@ -56,7 +57,6 @@ exports.home = function(request, response){
                             : pathUtils.DEFAULT_LOGO_PATH;
                         return account;
                     });
-                    console.log(accounts);
 
                     response.render(pageNamesUtils.HOME_PAGE, {account, posts, accounts});
                     connection.end();
@@ -68,13 +68,17 @@ exports.home = function(request, response){
 }
 
 exports.createPost = function(request, response){
+
+  if(!request.cookies.email){
+    response.redirect("/accounts/signin");
+  }
+
   const connection = mysql.createConnection(dbUtils.database);
   const queryInsertPost = "INSERT INTO posts SET ?";
   const queryInsertFile = "INSERT INTO files SET ?";
-  console.log(request.file.filename);
+ 
   const account_email = request.cookies.email;
   const text = request.body.text;
-  //const path = request.body.file.filename;
   const pad = function (num) {
     return ("00" + num).slice(-2);
   };
@@ -86,7 +90,7 @@ exports.createPost = function(request, response){
     "-" +
     pad(date_time.getUTCDate()) +
     " " +
-    pad(date_time.getUTCHours()) +
+    pad(date_time.getUTCHours() + 3) +
     ":" +
     pad(date_time.getUTCMinutes()) +
     ":" +
@@ -98,13 +102,9 @@ exports.createPost = function(request, response){
     date_time,
   };
 
-  console.log("shit happenes");
-
   connection.query(queryInsertPost, post, (error, results) => {
     if (error) {
-        
-        
-      //response.render("sign_up.hbs", { isEmailExists: true });
+        console.log(error);
     } else {
         if(request.file){
             const post_id = results.insertId;
@@ -113,16 +113,13 @@ exports.createPost = function(request, response){
                 post_id,
                 path
             }
-            connection.query(queryInsertFile, file, (error, results) => {response.redirect("/home"); connection.end();});
+            connection.query(queryInsertFile, file, (error, results) => { 
+                connection.end();
+            });
+        }else{
+            connection.end();
         }
-      //
+        response.redirect("/home");
     }
   });
-
-//   connection.end();
-//     if(request.cookies.email){
-//         response.render("home.hbs");
-//     }else{
-//         response.redirect("/accounts/signin");
-//     }
 }

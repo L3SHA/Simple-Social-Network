@@ -6,6 +6,10 @@ const database = {
   password: "root",
 };
 
+exports.sign = function (request, response) {
+  response.render("sign.hbs", { isIncorrectEmailOrPassword: false, isEmailExists: false });
+};
+
 exports.isUserExists = function (request, response) {
   const connection = mysql.createConnection(database);
   const email = request.body.email;
@@ -24,7 +28,7 @@ exports.isUserExists = function (request, response) {
     if (results.length != 0) {
       response.cookie("email", email).redirect("/profile");
     } else {
-      response.render("sign_up.hbs", { isIncorrectEmailOrPassword: true, isEmailExists: false });
+      response.render("sign.hbs", { isIncorrectEmailOrPassword: true, isEmailExists: false });
     }
   });
 
@@ -59,7 +63,7 @@ exports.addNewAccount = function (request, response) {
   connection.query(queryInsertAccount, account, 
     (error, results) => {
     if (error) {
-      response.render("sign_up.hbs", { isEmailExists: true, isIncorrectEmailOrPassword: false });
+      response.render("sign.hbs", { isEmailExists: true, isIncorrectEmailOrPassword: false });
     } else {
       response.cookie("email", email).redirect("/profile");
     }
@@ -67,12 +71,4 @@ exports.addNewAccount = function (request, response) {
 
   connection.end();
 
-};
-
-exports.getSignInForm = function (request, response) {
-  response.render("sign_in.hbs", { isIncorrectEmailOrPassword: false });
-};
-
-exports.getSignUpForm = function (request, response) {
-  response.render("sign_up.hbs", { isIncorrectEmailOrPassword: false, isEmailExists: false });
-};
+}
