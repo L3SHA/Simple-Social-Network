@@ -5,12 +5,9 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const app = express();
 
-const accountsRouter = require("./routes/accountsRouter.js");
+const signRouter = require("./routes/signRouter.js");
 const homeRouter = require("./routes/homeRouter.js");
 const profileRouter = require("./routes/profileRouter.js");
-const postsRouter = require("./routes/postsRouter.js");
-const peopleRouter = require("./routes/peopleRouter.js");
-const aboutRouter = require("./routes/aboutRouter.js");
 
 app.set("view engine", "hbs");
 app.set("views", __dirname + "/views");
@@ -35,13 +32,9 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use("/sign", signRouter);
 app.use("/home", homeRouter);
-app.use("/accounts", accountsRouter);
 app.use("/profile", profileRouter);
-app.use("/posts", postsRouter);
-app.use("/people", peopleRouter);
-app.use("/about", aboutRouter);
-
 
 app.use(function (req, res, next) {
   res.status(404).send("Not Found");

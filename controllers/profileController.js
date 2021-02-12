@@ -25,47 +25,4 @@ exports.profile = function (request, response) {
   });
 
   connection.end();
-};
-
-exports.createPost = function (request, response) {
-  const connection = mysql.createConnection(dbUtils.database);
-  const queryInsertPost = "INSERT INTO posts SET ?";
-
-  const account_email = request.cookies.email;
-  const text = request.body.text;
-  //const path = request.body.file.filename;
-  const pad = function (num) {
-    return ("00" + num).slice(-2);
-  };
-  let date_time = new Date();
-  date_time =
-    date_time.getUTCFullYear() +
-    "-" +
-    pad(date_time.getUTCMonth() + 1) +
-    "-" +
-    pad(date_time.getUTCDate()) +
-    " " +
-    pad(date_time.getUTCHours()) +
-    ":" +
-    pad(date_time.getUTCMinutes()) +
-    ":" +
-    pad(date_time.getUTCSeconds());
-
-  const post = {
-    account_email,
-    text,
-    date_time,
-  };
-
-  console.log("shit happenes");
-
-  connection.query(queryInsertPost, post, (error, results) => {
-    if (error) {
-      //response.render("sign_up.hbs", { isEmailExists: true });
-    } else {
-      response.redirect("/profile");
-    }
-  });
-
-  connection.end();
-};
+}
