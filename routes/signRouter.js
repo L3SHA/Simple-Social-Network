@@ -3,7 +3,7 @@ const signController = require("../controllers/signController.js");
 const signRouter = express.Router();
  
 signRouter.get("/", signController.sign);
-signRouter.use("/isUserExists", signController.isUserExists);
+signRouter.post("/isAccountExists", signController.isAccountExists);
 signRouter.post("/addNewAccount", signController.addNewAccount); 
 
 module.exports = signRouter;

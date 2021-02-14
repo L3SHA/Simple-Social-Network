@@ -1,43 +1,28 @@
 const mysql = require("mysql2");
-const database = {
-  host: "localhost",
-  user: "root",
-  database: "social_network",
-  password: "root",
-};
+const dbUtils = require("../utils/dbUtils");
+const pageNameUtils = require("../utils/pageNamesUtils");
+
+const COOKIE_EMAIL_KEY = "email";
 
 exports.sign = function (request, response) {
-  response.render("sign.hbs", { isIncorrectEmailOrPassword: false, isEmailExists: false });
+  response.render(pageNameUtils.SIGN_PAGE_NAME, { isIncorrectEmailOrPassword: false, isEmailExists: false });
 };
 
-exports.isUserExists = function (request, response) {
-  const connection = mysql.createConnection(database);
+exports.isAccountExists = function (request, response) {
+  const connection = mysql.createConnection(dbUtils.database).promise();
   const email = request.body.email;
   const password = request.body.password;
-  const queryAccounts =
-    "SELECT email FROM accounts WHERE email = " +
-    "'" +
-    email +
-    "'" +
-    " AND password = " +
-    "'" +
-    password +
-    "'";
 
-  connection.execute(queryAccounts, (error, results) => {
-    if (results.length != 0) {
-      response.cookie("email", email).redirect("/profile");
-    } else {
-      response.render("sign.hbs", { isIncorrectEmailOrPassword: true, isEmailExists: false });
-    }
-  });
-
-  connection.end();
+  connection.query(dbUtils.QUERY_ACCOUNT_BY_EMAIL_AND_PASSWORD, [email, password])
+    .then(result => {
+      if (result.length != 0) { response.cookie(COOKIE_EMAIL_KEY, email).redirect(pageNameUtils.PROFILE_PAGE_ROUTE)}
+      response.render(pageNameUtils.PROFILE_PAGE_ROUTE, { isIncorrectEmailOrPassword: true, isEmailExists: false });
+      connection.end();
+    });
 };
 
 exports.addNewAccount = function (request, response) {
-  const connection = mysql.createConnection(database);
-  const queryInsertAccount = "INSERT INTO accounts SET ?";
+  const connection = mysql.createConnection(dbUtils.database).promise();
 
   const first_name = request.body.first_name;
   const second_name = request.body.second_name;
@@ -60,15 +45,15 @@ exports.addNewAccount = function (request, response) {
     gender
   };
 
-  connection.query(queryInsertAccount, account, 
-    (error, results) => {
-    if (error) {
-      response.render("sign.hbs", { isEmailExists: true, isIncorrectEmailOrPassword: false });
-    } else {
-      response.cookie("email", email).redirect("/profile");
-    }
-  });
-
-  connection.end();
+  connection.query(dbUtils.QUERY_INSERT_ACCOUNT, account)
+    .then(result => {
+      response.cookie(COOKIE_EMAIL_KEY, email).redirect(pageNameUtils.PROFILE_PAGE_ROUTE);
+      connection.end();
+    })
+    .catch(error => {
+      response.render(pageNameUtils.PROFILE_PAGE_NAME, { isEmailExists: true, isIncorrectEmailOrPassword: false });
+      connection.end();
+    });
+  
 
 }

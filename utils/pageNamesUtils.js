@@ -1,5 +1,6 @@
-const PROFILE_PAGE = "profile.hbs";
-const HOME_PAGE = "home.hbs";
-
-exports.PROFILE_PAGE = PROFILE_PAGE;
-exports.HOME_PAGE = HOME_PAGE;
+exports.PROFILE_PAGE_NAME = "profile.hbs";
+exports.HOME_PAGE_NAME = "home.hbs";
+exports.SIGN_PAGE_NAME = "sign.hbs";
+exports.PROFILE_PAGE_ROUTE = "profile";
+exports.HOME_PAGE_ROUTE = "home";
+exports.SIGN_PAGE_ROUTE = "sign";
