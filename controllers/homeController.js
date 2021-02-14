@@ -1,125 +1,114 @@
+//TODO: add logout function
+//TODO: add image load in post
+//TODO: add photo change
+//TODO: add suggections on profile page and limit by 5 (in home too)
+//TODO: add edit personal data
+//TODO: add extra data fields and db tables or columns
 const mysql = require("mysql2");
 const dbUtils = require("../utils/dbUtils");
 const pathUtils = require("../utils/pathUtils");
 const pageNamesUtils = require("../utils/pageNamesUtils");
 
+function getTimePassedString(date_time){
+    let time = new Date(date_time);
+    let timeDiff = Date.now() - time;
+    let timePassedDays = Math.round(timeDiff / (1000 * 60 * 60 * 24));
+    if (timePassedDays) {return `${timePassedDays} day(s) ago`}
+    let timePassedHours = Math.round(timeDiff / (1000 * 60 * 60));
+    if (timePassedHours) {return `${timePassedHours} hour(s) ago`}
+    let timePassedMinutes = Math.round(timeDiff / (1000 * 60));
+    if (timePassedMinutes) {return `${timePassedMinutes} minute(s) ago`}
+    let timePassedSeconds = Math.round(timeDiff / 1000);
+    if (timePassedSeconds) {return `${timePassedSeconds} second(s) ago`}
+    return `just now`
+}
+
+function getCurrentTime(){
+    let date_time = new Date();
+    date_time =
+        date_time.getUTCFullYear() +
+        "-" +
+        `${date_time.getUTCMonth()+ 1 }`+
+        "-" +
+        date_time.getUTCDate() +
+        " " +
+        `${date_time.getUTCHours()}` +
+        ":" +
+        date_time.getUTCMinutes() +
+        ":" +
+        date_time.getUTCSeconds();
+    return date_time;
+}
+
 exports.home = function(request, response){
 
-    if(request.cookies.email){
-        const connection = mysql.createConnection(dbUtils.database).promise();
-        const queryAccount =
-            "SELECT first_name, second_name, profile_photo_path " + 
-            "FROM accounts " + 
-            "WHERE email = " + "'" + request.cookies.email + "'";
-        const queryPosts = 
-            "SELECT * " +
-            "FROM posts " +
-            "LEFT JOIN accounts ON posts.account_email = accounts.email " + 
-            "LEFT JOIN files ON files.post_id = posts.id " + 
-            "WHERE email = " + "'" + request.cookies.email + "' " + 
-            "ORDER BY posts.date_time DESC";
-        const queryAllAccounts =
-            "SELECT first_name, second_name, profile_photo_path " + 
-            "FROM accounts WHERE email <> " +
-            "'" +
-            request.cookies.email +
-            "'";
-        let account = {};
-        let posts = {};
-        connection.query(queryAccount)
-            .then(result => {
-                account = result[0][0];
-                account.profile_photo_path = account.profile_photo_path
-                    ? pathUtils.USER_LOGO_PATH + account.profile_photo_path
-                    : pathUtils.DEFAULT_LOGO_PATH;
-        }).then(() => {
-            connection.query(queryPosts)
-                .then(result => {
-                    posts = result[0].map(post =>{
-                        let time = new Date(post.date_time);
-                        let timeDiff = (Date.now() - time) / (1000 * 60 * 60);
-                        post.time_passed = Math.round(timeDiff) + "hr ago";
-                        post.profile_photo_path = post.profile_photo_path
-                            ? pathUtils.USER_LOGO_PATH + post.profile_photo_path
-                            : pathUtils.DEFAULT_LOGO_PATH;
-                        post.path = post.path
-                            ? pathUtils.USER_LOGO_PATH + post.path
-                            : pathUtils.DEFAULT_LOGO_PATH;
-                        return post;
-                    });
-            });
-        }).then(() => {
-            connection.query(queryAllAccounts)
-                .then(result => {
-                    const accounts = result[0].map(account =>{
-                        account.profile_photo_path = account.profile_photo_path
-                            ? pathUtils.USER_LOGO_PATH + account.profile_photo_path
-                            : pathUtils.DEFAULT_LOGO_PATH;
-                        return account;
-                    });
+    const email = request.cookies.email;
 
-                    response.render(pageNamesUtils.HOME_PAGE, {account, posts, accounts});
-                    connection.end();
-                })
-        });     
-    }else{
-        response.redirect("/accounts/signin");
+    if(!email){
+        response.redirect(pageNamesUtils.SIGN_PAGE_ROUTE);
+        return;
     }
+
+    const connection = mysql.createConnection(dbUtils.database).promise();
+    let account = {};
+    let posts = {};
+    let accounts = {};
+    connection.query(dbUtils.QUERY_ACCOUNT_BY_EMAIL, email)
+        .then(result => {
+            account = result[0][0];
+            account.profile_photo_path = pathUtils.resolvePathToImage(account.profile_photo_path);
+            return connection.query(dbUtils.QUERY_POSTS_BY_ACCOUNT, email);
+        })
+        .then(result => {
+            posts = result[0].map(post => {
+                post.time_passed = getTimePassedString(post.date_time);
+                post.profile_photo_path = pathUtils.resolvePathToImage(post.profile_photo_path);
+                post.path = post.path ? pathUtils.USER_LOGO_PATH + post.path : undefined;//pathUtils.resolvePathToImage(post.path);
+                return post;
+            });
+            return connection.query(dbUtils.QUERY_ALL_ACCOUNTS, email);
+        })
+        .then(result => {
+            accounts = result[0].map(account =>{
+                account.profile_photo_path = pathUtils.resolvePathToImage(account.profile_photo_path);
+                return account;
+            });
+            response.render(pageNamesUtils.HOME_PAGE_NAME, {account, posts, accounts});
+            return connection.end();
+        }) 
 }
 
 exports.createPost = function(request, response){
 
-  if(!request.cookies.email){
-    response.redirect("/accounts/signin");
+  const account_email = request.cookies.email;
+
+  if(!account_email){
+    response.redirect(pageNamesUtils.SIGN_PAGE_ROUTE);
   }
 
-  const connection = mysql.createConnection(dbUtils.database);
-  const queryInsertPost = "INSERT INTO posts SET ?";
-  const queryInsertFile = "INSERT INTO files SET ?";
- 
-  const account_email = request.cookies.email;
+  const connection = mysql.createConnection(dbUtils.database).promise();
   const text = request.body.text;
-  const pad = function (num) {
-    return ("00" + num).slice(-2);
-  };
-  let date_time = new Date();
-  date_time =
-    date_time.getUTCFullYear() +
-    "-" +
-    pad(date_time.getUTCMonth() + 1) +
-    "-" +
-    pad(date_time.getUTCDate()) +
-    " " +
-    pad(date_time.getUTCHours() + 3) +
-    ":" +
-    pad(date_time.getUTCMinutes()) +
-    ":" +
-    pad(date_time.getUTCSeconds());
-
+  const date_time = getCurrentTime();
   const post = {
     account_email,
     text,
     date_time,
   };
 
-  connection.query(queryInsertPost, post, (error, results) => {
-    if (error) {
-        console.log(error);
-    } else {
+  connection.query(dbUtils.QUERY_INSERT_POST, post)
+    .then (result => {
         if(request.file){
-            const post_id = results.insertId;
+            console.log(result[0]);
+            const post_id = result[0].insertId;
             const path = request.file.filename;
             const file = {
                 post_id,
                 path
             }
-            connection.query(queryInsertFile, file, (error, results) => { 
-                connection.end();
-            });
-        }else{
+            connection.query(dbUtils.QUERY_INSERT_FILE, file);
             connection.end();
         }
-        response.redirect("/home");
-    }
-  });
+        response.redirect(pageNamesUtils.HOME_PAGE_ROUTE);
+    });
+        
 }
