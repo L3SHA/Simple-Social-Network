@@ -15,7 +15,7 @@ exports.isAccountExists = function (request, response) {
 
   connection.query(dbUtils.QUERY_ACCOUNT_BY_EMAIL_AND_PASSWORD, [email, password])
     .then(result => {
-      if (result.length != 0) { response.cookie(COOKIE_EMAIL_KEY, email).redirect(pageNameUtils.PROFILE_PAGE_ROUTE)}
+      if (result.length != 0) { response.cookie(COOKIE_EMAIL_KEY, email).redirect("/" + pageNameUtils.PROFILE_PAGE_ROUTE); return }
       response.render(pageNameUtils.PROFILE_PAGE_ROUTE, { isIncorrectEmailOrPassword: true, isEmailExists: false });
       connection.end();
     });
@@ -47,11 +47,11 @@ exports.addNewAccount = function (request, response) {
 
   connection.query(dbUtils.QUERY_INSERT_ACCOUNT, account)
     .then(result => {
-      response.cookie(COOKIE_EMAIL_KEY, email).redirect(pageNameUtils.PROFILE_PAGE_ROUTE);
+      response.cookie(COOKIE_EMAIL_KEY, email).redirect("/" + pageNameUtils.PROFILE_PAGE_ROUTE);
       connection.end();
     })
     .catch(error => {
-      response.render(pageNameUtils.PROFILE_PAGE_NAME, { isEmailExists: true, isIncorrectEmailOrPassword: false });
+      response.render(pageNameUtils.SIGN_PAGE_NAME, { isEmailExists: true, isIncorrectEmailOrPassword: false });
       connection.end();
     });
   
